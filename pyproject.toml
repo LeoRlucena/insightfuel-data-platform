@@ -1,0 +1,22 @@
+[project]
+name = "insightfuel-data-platform"
+version = "0.1.0"
+description = "Data Storage Technologies for Data Science class final project"
+readme = "README.md"
+authors = [
+    { name = "Leonardo Lucena", email = "leorlucena@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "polars>=1.44.2",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.13,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.7",
+]
