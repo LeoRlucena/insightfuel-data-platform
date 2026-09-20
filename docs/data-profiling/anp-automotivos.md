@@ -41,14 +41,16 @@ Uma linha representa uma observação de preço coletada pela ANP para determina
 
 ## 5. Profiling por partição
 
-| Partição | Registros | Data mínima | Data máxima | Duplicidades |
-|----------|----------:|-------------|-------------|-------------:|
-| 2023/1   | 431.576   | 2023-01-02  | 2023-06-30  | 0 |
-| 2023/2   | —         | —           | —           | — |
-| 2024/1   | —         | —           | —           | — |
-| 2024/2   | —         | —           | —           | — |
-| 2025/1   | —         | —           | —           | — |
-| 2025/2   | —         | —           | —           | — |
+| Partição | Registros | Data mínima | Data máxima | Colisões da chave | Duplicatas exatas | Linhas vazias |
+|---|---:|---|---|---:|---:|---:|
+| 2023/1 | 431.576 | 2023-01-02 | 2023-06-30 | 0 | 0 | 0 |
+| 2023/2 | 472.424 | 2023-07-03 | 2023-12-29 | 0 | 0 | 0 |
+| 2024/1 | 477.154 | 2024-01-01 | 2024-06-28 | 14 | 10 | 0 |
+| 2024/2 | 421.382 | 2024-07-01 | 2024-12-31 | 0 | 0 | 0 |
+| 2025/1 | 429.523 | 2025-01-01 | 2025-06-30 | 0 | 9.113* | 9.114 |
+| 2025/2 | 384.208 | 2025-07-01 | 2025-12-31 | 0 | 0 | 0 |
+
+_*: as 9.113 redundâncias exatas de 2025/1 decorrem das 9.114 linhas completamente vazias._
 
 ## 6. Qualidade dos dados
 
@@ -57,6 +59,9 @@ Uma linha representa uma observação de preço coletada pela ANP para determina
 - Complemento: 333.000 nulos (77,16%)
 - Bairro: 828 nulos (0,19%)
 - Valor de Compra: 431.576 nulos (100%)
+
+### 2025/1
+- Possui 9.114 registros vazios ao final do arquivo
 
 ### Demais partições
 A validar.
