@@ -4,7 +4,7 @@
 
 O projeto InsightFuel Analytics busca construir uma plataforma de dados capaz de integrar informações de preços de combustível em conjunto com dados geográficos, demográficos, socioeconômicos e macroeconômicos dos municípios brasileiros.
 
-A base será composta pelos dados históricos de preços de combustíveis disponibilizados pela Agência Nacional do Petróleo, Gás Natural e Biocombustíveis (ANP). Esses dados serão enriquecidos por fontes externas, permitindo análises que se relacionam com fatores como renda, atividade econômica, distnância das capitais e inflação.
+A base será composta pelos dados históricos de preços de combustíveis disponibilizados pela Agência Nacional do Petróleo, Gás Natural e Biocombustíveis (ANP). Esses dados serão enriquecidos por fontes externas, permitindo análises que se relacionam com fatores como renda, atividade econômica, distância das capitais e inflação.
 
 A seleção de fontes externas levou em consideração as perguntas e hipóteses norteadores com enunciado da atividade propostas para o projeto.
 
@@ -20,7 +20,7 @@ A seleção de fontes externas levou em consideração as perguntas e hipóteses
 
 **Formato utilizado**: CSV.
 
-**Peridiocidade dos arquivos utilizados**: semestreal, contendo observações do levantamento periódico de preços.
+**Periodicidade dos arquivos utilizados**: semestral, contendo observações do levantamento periódico de preços.
 
 **Período selecionado para o projeto**: 2023 a 2025.
 
@@ -91,7 +91,7 @@ Após o enriquecimento, o código do IBGE passa a ser a principal chave para rel
 
 **Dataset**: Estimativas da População Residente para os Municípios e Unidades da Federação.
 
-**Peridiocidade**: Anual.
+**Periodicidade**: Anual.
 
 **Granularidade**: Município/Ano.
 
@@ -105,13 +105,15 @@ Após o enriquecimento, o código do IBGE passa a ser a principal chave para rel
 
 ### Justificativa
 
-A população municipal será utilizada para indicar o porte dos mercados locais, um enriquecimento que permitirá comparar o comportamento de preços entre municiípios de diferentes tamanhos, investigando se mercados menores possuem maior volatilidade ou preços diferentes dos encontrados em centros urbanos maiores.
+A população municipal será utilizada para indicar o porte dos mercados locais, um enriquecimento que permitirá comparar o comportamento de preços entre municípios de diferentes tamanhos, investigando se mercados menores possuem maior volatilidade ou preços diferentes dos encontrados em centros urbanos maiores.
 
 Além disso, também poderá ser utilizada para criar categorias de porte populacional, como municípios pequenos, médios e grandes.
 
 ### Chave de integração prevista
 
 `Código IBGE + Ano`
+
+---
 
 ## 5. IBGE - Produto Interno Bruto dos Municípios
 
@@ -123,7 +125,7 @@ Além disso, também poderá ser utilizada para criar categorias de porte popula
 
 ### Dados de interesse
 
-* Código do municipio;
+* Código do município;
 * PIB Municipal;
 * PIB per capita;
 * Ano de referência.
@@ -243,17 +245,61 @@ A série mensal do IPCA permitirá construir um índice acumulado e converter os
 
 ## 9. Matriz de Rastreabilidade
 
+| Pergunta/Hipótese | Principais variáveis | Fontes |
+| ----------- | ----------- | ----------- |
+| Q1 - Variação regional | preço. produto, região, população, indicadores econômicos | ANP + IBGE |
+| Q2 / H1 - Distância de capital | preço municipal e distância geográfica | ANP + IBGE + Localidades + Malhas |
+| Q3 / H2 - Renda e preços | preço, PIB per capita e IDHM/IDHM Renda | ANP + IBGE PIB + Atlas/BD |
+| Q4 / H3 - Volatilidade e porte | série temporal, produto, região e população | ANP + IBGE População |
+| Q5 / H4 - Paridade etanol/gasolina | preço de etanol, gasolina e localização | ANP + IBGE Localidades |
+| Q6 - Fuel Value Index | preço, bandeira, população e condições socioeconômicas | ANP + IBGE + Atlas/BD |
+| Q7 - Porte populacional | preço e população municipal | ANP + IBGE População |
+| Q8 - Anomalias | série temporal de preços | ANP |
+| H5 - Bandeiras | preço e bandeira | ANP |
+| H6 - Preços reais | preço nominal e IPCA mensal | ANP + BCB/IBGE |
+
 ---
 
 ## 10. Estratégia de Integração
+
+O código de município do IBGE será o principal identificador geográfico entre as diferentes fontes, com o seguinte fluxo previsto:
+
+`ANP -> padronização Município/UF -> API de Localidades -> Código IBGE`
+
+A partir desse identificador teremos:
+
+* `Código IBGE -> População`;
+* `Código IBGE -> PIB / PIB per capita`;
+* `Código IBGE -> IDHM`;
+* `Código IBGE -> Malha geográfica`.
+
+O IPCA será relacionado temporalmente aos preços por meio do ano e mês derivados da Data de Coleta da ANP:
+
+* `Data da Coleta -> Ano/Mês -> IPCA`.
+
+Com essa estratégia, reduzimos a dependência de relacionamentos baseados em nomes textuais de município, estabelecendo uma chave comum entre os dados e um maior enriquecimento.
 
 ---
 
 ## 11. Considerações sobre temporalidade
 
+As fontes aqui selecionados apresentam diferentes frequências e períodos de atualização.
+
+Os preços da ANP, por exemplo, possuem alta granularidade temporal e vão ser agregados para análises mensais. Já população possui referência anual, enquanto PIB municipal tem maior defasagem de divulgação. O IDHM possui caráter estrutural e histórico. Já o IPCA é de periodicidade mensal.
+
+Por conta disso, não pode-se considerar que todas as variáveis sejam observadas simultaneamente em enriquecimentos. Dessa forma, o pipeline deverá preservar o ano ou período de referência de cada indicador, permitindo também identificar a temporalidade de cada informação utilizada nas análises.
+
 ---
 
 ## 12. Conclusão
+
+As fontes selecionadas nos permitem cobrir os principais eixos analíticos propostos para o InsightFuel, sem introduzir fontes externas desnecessárias.
+
+O núcleo transacional e temporal relacionado à preços gira em torno da ANP. O IBGE fornece a estrutura territorial, demográfica e econômica para caracterizar os municípios. O Atlas do Desenvolvimento Humano acrescenta características socioeconômicas estruturais, enquanto o IPCA permitirá comparar preços em termos reais.
+
+Integrar todas essas fontes possibilitará construir uma camada analítica mensal enriquecida.
+
+As principais limitações identificadas nesta etapa são a defasagem temporal do PIB municipal, a natureza histórica do IDHM e o uso de distância geográfica como proxy de distância logística, devendo sempre ser consideradas nas interpretações das análises.
 
 ---
 
@@ -292,4 +338,5 @@ https://www3.bcb.gov.br/sgspub/consultarvalores/consultarValoresSeries.do?method
 Acesso em: 20 set. 2026.
 
 **BANCO CENTRAL DO BRASIL (BCB).** Portal de Dados Abertos do Banco Central do Brasil. Disponível em:
-https
+https://dadosabertos.bcb.gov.br/
+Acesso em: 20 set. 2026.
