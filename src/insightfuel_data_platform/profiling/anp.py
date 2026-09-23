@@ -41,6 +41,22 @@ def analisar_particao(df: pl.DataFrame) -> dict:
     }
     return resultado
 
+def maximo_casas_decimais(df: pl.DataFrame, coluna: str) -> int:
+    return (
+        df
+        .select(
+            pl.col(coluna)
+            .str.split(".")
+            .list.get(1, null_on_oob=True)
+            .str.len_chars()
+            .alias("casas_decimais")
+            .fill_null(0)
+            .max()
+            .alias("maximo_casas_decimais")
+        )
+        .item()
+    )   
+
 def quantidade_nulos(df: pl.DataFrame) -> dict:
     nulos = df.null_count().to_dicts()[0]
 
