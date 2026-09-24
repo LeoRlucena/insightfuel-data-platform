@@ -33,6 +33,11 @@ COLUNAS_CONHECIDAS_ANP = {
     "Bandeira",
 }
 
+UFS_VALIDAS_BRASIL = {
+    "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA",
+    "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"
+}
+
 SCHEMA_SILVER_ANP = {
     "regiao": pl.String,
     "uf": pl.String,
@@ -265,6 +270,51 @@ def validar_campos_obrigatorios(df: pl.DataFrame) -> None:
             f"{campos_com_nulos}"
         )
 
+def validar_cnpj_silver(df: pl.DataFrame) -> None:
+    """
+    Valida o formato dos CNPJs da camada Silver.
+
+    Args:
+        df (pl.DataFrame): DataFrame da camada Silver.
+
+    Raises:
+        ValueError: Se houver CNPJs com formatos inválidos.
+    """
+    cnpjs_invalidos = df.filter(
+        ~pl.col("cnpj_revenda").str.contains(r"^\d{14}$")
+    )
+
+    if cnpjs_invalidos.height > 0:
+        raise ValueError(
+            f"Foram encontrados {cnpjs_invalidos.height} "
+            "registros com CNPJ em formato inválido"
+        )
+
+def validar_ufs_silver(df: pl.DataFrame) -> None:
+    """
+    Valida os códigos de UF da camada Silver.
+
+    Args:
+        df (pl.DataFrame): DataFrame da camada Silver.
+
+    Raises:
+        ValueError: Se houver códigos de UF inválidos.
+    """
+    ufs_recebidas = set(
+        df["uf"]
+        .drop_nulls()
+        .unique()
+        .to_list()
+    )
+
+    ufs_invalidas = ufs_recebidas - UFS_VALIDAS_BRASIL
+
+    if ufs_invalidas:
+        raise ValueError(
+            "Foram encontrados códigos de UF inválidos na camada Silver: "
+            f"{ufs_invalidas}"
+        )
+
 def validar_silver(df: pl.DataFrame) -> None:
     """
     Valida se o DataFrame está de acordo com o schema da camada Silver.
@@ -283,3 +333,5 @@ def validar_silver(df: pl.DataFrame) -> None:
     validar_valor_venda(df)
     validar_valores_categoricos(df)
     validar_campos_obrigatorios(df)
+    validar_cnpj_silver(df)
+    validar_ufs_silver(df)
