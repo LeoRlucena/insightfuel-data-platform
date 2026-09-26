@@ -21,6 +21,38 @@ MAPEAMENTO_COLUNAS_ANP = {
     "Bandeira": "bandeira",
 }
 
+def adicionar_colunas_opcionais_ausentes(
+    df: pl.DataFrame,
+) -> pl.DataFrame:
+    '''
+    Adiciona colunas opcionais ausentes ao DataFrame com valores nulos.
+
+    Args:
+        df (pl.DataFrame): DataFrame de entrada.
+
+    Returns:
+        pl.DataFrame: DataFrame com as colunas opcionais ausentes adicionadas.
+    '''
+    colunas_opcionais = {
+        "Regiao - Sigla": pl.String,
+        "Revenda": pl.String,
+        "Cep": pl.String,
+        "Bandeira": pl.String,
+    }
+
+    expressoes = []
+
+    for coluna, tipo in colunas_opcionais.items():
+        if coluna not in df.columns:
+            expressoes.append(
+                pl.lit(None, dtype=tipo).alias(coluna)
+            )
+
+    if expressoes:
+        df = df.with_columns(expressoes)
+
+    return df
+
 def selecionar_e_renomear_colunas(df: pl.DataFrame) -> pl.DataFrame:
     """
     Seleciona e renomeia as colunas do DataFrame de acordo com o mapeamento definido.
@@ -230,6 +262,7 @@ def transformar_anp_silver(df: pl.DataFrame) -> pl.DataFrame:
     
     resultado = remover_linhas_vazias(df)
     resultado = remover_duplicatas_exatas(resultado)
+    resultado = adicionar_colunas_opcionais_ausentes(resultado)
     resultado = selecionar_e_renomear_colunas(resultado)
     resultado = normalizar_cnpj(resultado)
     resultado = normalizar_cep(resultado)

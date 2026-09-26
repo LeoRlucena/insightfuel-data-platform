@@ -11,6 +11,9 @@ from insightfuel_data_platform.pipelines.ibge import (
     processar_municipios_ibge,
 )
 
+from insightfuel_data_platform.ingestion.anp import (
+    baixar_particoes_anp,
+)
 
 PASTA_BRONZE_ANP = Path(
     "/opt/airflow/data/bronze/anp/automotivos"
@@ -36,6 +39,17 @@ PASTA_GOLD = Path(
     tags=["insightfuel", "anp", "ibge"],
 )
 def insightfuel_pipeline():
+    
+    @task
+    def baixar_anp():
+        caminhos = baixar_particoes_anp(
+            PASTA_BRONZE_ANP
+        )
+
+        return [
+            str(caminho)
+            for caminho in caminhos
+        ]
 
     @task
     def processar_anp():
@@ -63,12 +77,14 @@ def insightfuel_pipeline():
 
         return [str(caminho) for caminho in caminhos]
 
-    anp = processar_anp()
-    ibge = processar_ibge()
-
+    bronze_anp = baixar_anp()
+    silver_anp = processar_anp()
+    silver_ibge = processar_ibge()
+    
     gold = construir_gold()
-
-    [anp, ibge] >> gold
+    
+    bronze_anp >> silver_anp
+    [silver_anp, silver_ibge] >> gold
 
 
 insightfuel_pipeline()

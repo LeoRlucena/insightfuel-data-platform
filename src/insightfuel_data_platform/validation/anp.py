@@ -33,6 +33,21 @@ COLUNAS_CONHECIDAS_ANP = {
     "Bandeira",
 }
 
+COLUNAS_ANALITICAS_ANP = {
+    "Regiao - Sigla",
+    "Revenda",
+    "Bandeira",
+}
+
+COLUNAS_COMPLEMENTARES_ANP = {
+    "Nome da Rua",
+    "Numero Rua",
+    "Complemento",
+    "Bairro",
+    "Cep",
+    "Valor de Compra",
+}
+
 UFS_VALIDAS_BRASIL = {
     "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA",
     "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"
