@@ -5,6 +5,8 @@ from insightfuel_data_platform.validation.anp import (
     validar_colunas_criticas,
 )
 
+from insightfuel_data_platform.utils.text import normalizar_texto
+
 MAPEAMENTO_COLUNAS_ANP = {
     "Regiao - Sigla": "regiao",
     "Estado - Sigla": "uf",
@@ -166,6 +168,52 @@ def normalizar_cep(df: pl.DataFrame) -> pl.DataFrame:
             pl.DataFrame: DataFrame com o CEP normalizado.
     """
     return manter_apenas_digitos(df, "cep")    
+
+def enriquecer_com_codigo_ibge(
+    df_anp: pl.DataFrame,
+    df_municipios: pl.DataFrame,
+) -> pl.DataFrame:
+    """
+    Enriquece os dados da ANP com o código oficial do município do IBGE.
+
+    Args:
+        df_anp (pl.DataFrame): DataFrame da ANP.
+        df_municipios (pl.DataFrame): DataFrame de municípios do IBGE.
+
+    Returns:
+        pl.DataFrame: DataFrame da ANP enriquecido com o código do IBGE.
+    """
+    df_anp = df_anp.with_columns(
+        pl.col("municipio")
+        .map_elements(
+            normalizar_texto,
+            return_dtype=pl.String,
+        )
+        .alias("municipio_match")
+    )
+
+    return (
+        df_anp
+        .join(
+            df_municipios,
+            on=["uf", "municipio_match"],
+            how="left",
+            suffix="_ibge",
+        )
+        .rename({
+            "municipio_ibge": "municipio_oficial",
+            "regiao_ibge": "regiao_oficial",
+        })
+        .drop([
+            "municipio",
+            "regiao",
+        ])
+        .rename({
+            "municipio_oficial": "municipio",
+            "regiao_oficial": "regiao",
+        })
+        .drop("municipio_match")
+    )
 
 def transformar_anp_silver(df: pl.DataFrame) -> pl.DataFrame:
     """

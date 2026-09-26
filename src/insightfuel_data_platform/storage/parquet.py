@@ -30,3 +30,23 @@ def construir_caminho_silver(
         Path: Caminho completo para o arquivo Parquet na camada Silver.
     """
     return pasta_silver / f"ano={ano}" / f"semestre={semestre}" / "dados.parquet"
+
+def construir_caminho_gold_precos_mensais(
+    pasta_gold: Path,
+    ano: int,
+) -> Path:
+    """
+    Constrói o caminho completo para o arquivo Parquet na camada Gold de preços mensais.
+
+    Args:
+        pasta_gold (Path): Pasta base da camada Gold.
+        ano (int): Ano da partição.
+
+    Returns:
+        Caminho completo para o arquivo Parquet na camada Gold de preços mensais.
+    """
+    return (
+        pasta_gold
+        / f"ano={ano}"
+        / "dados.parquet"
+    )

@@ -526,6 +526,7 @@ name = "insightfuel-data-platform"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "httpx" },
     { name = "polars" },
 ]
 
@@ -538,7 +539,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "polars", specifier = ">=1.44.2" }]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "polars", specifier = ">=1.44.2" },
+]
 
 [package.metadata.requires-dev]
 dev = [
