@@ -12,9 +12,10 @@ from insightfuel_data_platform.transformation.anp import (
 )
 
 from insightfuel_data_platform.storage.parquet import (
-    construir_caminho_silver,
-    salvar_parquet,
     construir_caminho_gold_precos_mensais,
+    construir_caminho_silver,
+    construir_caminho_silver_municipios_ibge,
+    salvar_parquet,
 )
 
 from insightfuel_data_platform.validation.anp import validar_silver
@@ -127,7 +128,6 @@ def publicar_gold_precos_mensais(
 def construir_gold_precos_mensais(
     pasta_silver: Path,
     pasta_gold: Path,
-    df_municipios: pl.DataFrame,
 ) -> list[Path]:
     """
     Constrói e publica a Gold de preços mensais por município e produto.
@@ -135,27 +135,43 @@ def construir_gold_precos_mensais(
     Args:
         pasta_silver (Path): Diretório das partições Silver da ANP.
         pasta_gold (Path): Diretório de destino da Gold.
-        df_municipios (pl.DataFrame): Dimensão oficial de municípios do IBGE.
 
     Returns:
         list[Path]: Caminhos das partições Gold publicadas.
     """
-    arquivos_silver = sorted(
-        pasta_silver.rglob("*.parquet")
+    pasta_silver_anp = pasta_silver / "anp" / "automotivos"
+
+    arquivos_silver_anp = sorted(
+        pasta_silver_anp.rglob("*.parquet")
     )
 
-    if not arquivos_silver:
+    if not arquivos_silver_anp:
         raise FileNotFoundError(
-            f"Nenhuma partição Silver encontrada em: {pasta_silver}"
+            f"Nenhuma partição Silver da ANP encontrada em: "
+            f"{pasta_silver_anp}"
         )
 
-    df_silver = pl.concat([
+    caminho_municipios_ibge = (
+        construir_caminho_silver_municipios_ibge(pasta_silver)
+    )
+
+    if not caminho_municipios_ibge.exists():
+        raise FileNotFoundError(
+            f"Dimensão Silver de municípios IBGE não encontrada em: "
+            f"{caminho_municipios_ibge}"
+        )
+
+    df_silver_anp = pl.concat([
         pl.read_parquet(arquivo)
-        for arquivo in arquivos_silver
+        for arquivo in arquivos_silver_anp
     ])
 
+    df_municipios = pl.read_parquet(
+        caminho_municipios_ibge
+    )
+
     df_enriquecido = enriquecer_com_codigo_ibge(
-        df_silver,
+        df_silver_anp,
         df_municipios,
     )
 
@@ -163,9 +179,7 @@ def construir_gold_precos_mensais(
         df_enriquecido
     )
 
-    validar_gold_precos_mensais(
-        df_gold
-    )
+    validar_gold_precos_mensais(df_gold)
 
     return publicar_gold_precos_mensais(
         df_gold,

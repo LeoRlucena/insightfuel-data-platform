@@ -31,6 +31,11 @@ def construir_caminho_silver(
     """
     return pasta_silver / f"ano={ano}" / f"semestre={semestre}" / "dados.parquet"
 
+def construir_caminho_silver_municipios_ibge(
+    pasta_silver: Path,
+) -> Path:
+    return pasta_silver / "ibge" / "municipios" / "dados.parquet"
+
 def construir_caminho_gold_precos_mensais(
     pasta_gold: Path,
     ano: int,
@@ -50,3 +55,4 @@ def construir_caminho_gold_precos_mensais(
         / f"ano={ano}"
         / "dados.parquet"
     )
+

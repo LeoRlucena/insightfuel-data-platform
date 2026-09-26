@@ -12,3 +12,12 @@ wheels/
 # Data
 *.csv
 *.parquet
+
+# Environment files
+*.env
+
+# Airflow
+logs/*
+!logs/.gitkeep
+config/*
+!config/.gitkeep
