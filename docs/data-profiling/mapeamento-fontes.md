@@ -325,10 +325,6 @@ Acesso em: 20 set. 2026.
 https://servicodados.ibge.gov.br/api/docs/malhas?versao=4
 Acesso em: 20 set. 2026.
 
-**INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA (IBGE).** Metadados Estatísticos do IBGE. Catálogo de APIs Governamentais. Disponível em:
-https://www.gov.br/conecta/catalogo/apis/metadados-estatisticos-do-ibge
-Acesso em: 20 set. 2026.
-
 **PROGRAMA DAS NAÇÕES UNIDAS PARA O DESENVOLVIMENTO (PNUD); IPEA; FUNDAÇÃO JOÃO PINHEIRO.** Atlas do Desenvolvimento Humano no Brasil. Dados disponibilizados por meio da Base dos Dados. Disponível em:
 https://basedosdados.org/dataset/cbfc7253-089b-44e2-8825-755e1419efc8?table=2b704f11-2b3a-485d-a492-71f86c7ea21a
 Acesso em: 20 set. 2026.
