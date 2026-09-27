@@ -7,14 +7,18 @@ echo " InsightFuel Data Platform - Setup"
 echo "========================================"
 
 echo
-echo "[1/4] Sincronizando ambiente Python..."
-#!/usr/bin/env bash
+echo "[0/4] Verificando configuração do ambiente..."
 
-set -e
+if [ ! -f .env ]; then
+    echo "Arquivo .env não encontrado. Criando configuração local..."
 
-echo "========================================"
-echo " InsightFuel Data Platform - Setup"
-echo "========================================"
+    cat > .env <<EOF
+AIRFLOW_UID=$(id -u)
+FERNET_KEY=
+EOF
+
+    echo "Arquivo .env criado."
+fi
 
 echo
 echo "[1/4] Sincronizando ambiente Python..."
@@ -39,5 +43,3 @@ echo "========================================"
 echo
 
 docker compose ps
-
-chmod +x scripts/setup.sh
