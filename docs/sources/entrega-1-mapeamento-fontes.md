@@ -301,6 +301,8 @@ Integrar todas essas fontes possibilitará construir uma camada analítica mensa
 
 As principais limitações identificadas nesta etapa são a defasagem temporal do PIB municipal, a natureza histórica do IDHM e o uso de distância geográfica como proxy de distância logística, devendo sempre ser consideradas nas interpretações das análises.
 
+O presente mapeamento representa fontes candidatas para o enriquecimento da plataforma, não implicando que todas sejam implementadas no escopo atual do pipeline. A implementação realizada nesta etapa utiliza a ANP como fonte principal e a API de Localidades do IBGE para padronização geográfica.
+
 ---
 
 ## Referências das Fontes de Dados
