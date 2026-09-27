@@ -1,5 +1,6 @@
-import unicodedata
 import re
+import unicodedata
+
 
 def normalizar_texto(texto: str | None) -> str | None:
     """

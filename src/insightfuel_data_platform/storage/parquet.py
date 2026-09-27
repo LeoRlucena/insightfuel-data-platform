@@ -2,6 +2,7 @@ from pathlib import Path
 
 import polars as pl
 
+
 def salvar_parquet(df: pl.DataFrame, caminho: Path) -> None:
     """
     Salva um DataFrame em formato Parquet.

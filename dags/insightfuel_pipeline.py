@@ -1,18 +1,17 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
-from airflow.sdk import dag, task
+from airflow.sdk import dag, task # type: ignore
 
+from insightfuel_data_platform.ingestion.anp import (
+    baixar_particoes_anp,
+)
 from insightfuel_data_platform.pipelines.anp import (
     construir_gold_precos_mensais,
     processar_particoes_anp,
 )
 from insightfuel_data_platform.pipelines.ibge import (
     processar_municipios_ibge,
-)
-
-from insightfuel_data_platform.ingestion.anp import (
-    baixar_particoes_anp,
 )
 
 PASTA_BRONZE_ANP = Path(
@@ -33,7 +32,7 @@ PASTA_GOLD = Path(
 
 @dag(
     dag_id="insightfuel_pipeline",
-    start_date=datetime(2026, 1, 1),
+    start_date=datetime(2026, 1, 1, tzinfo=UTC),
     schedule=None,
     catchup=False,
     tags=["insightfuel", "anp", "ibge"],

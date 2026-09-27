@@ -1,5 +1,6 @@
 import polars as pl
 
+
 def agregar_precos_mensais_municipio(
     df: pl.DataFrame,
 ) -> pl.DataFrame:

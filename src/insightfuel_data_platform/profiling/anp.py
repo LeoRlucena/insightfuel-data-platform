@@ -1,5 +1,5 @@
-from pathlib import Path
 import polars as pl
+
 
 def verificar_chave_candidata(df: pl.DataFrame) -> pl.DataFrame:
     duplicados = (

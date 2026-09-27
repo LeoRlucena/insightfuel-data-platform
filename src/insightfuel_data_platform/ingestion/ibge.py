@@ -1,7 +1,6 @@
 import httpx
 import polars as pl
 
-
 URL_MUNICIPIOS_IBGE = (
     "https://servicodados.ibge.gov.br/api/v1/localidades/municipios"
 )

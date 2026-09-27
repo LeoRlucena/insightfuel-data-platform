@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 def descobrir_csvs(pasta: Path) -> list[Path]:
     """
     Descobre todos os arquivos CSV em uma pasta específica.

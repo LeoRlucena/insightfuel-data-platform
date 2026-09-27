@@ -1,12 +1,9 @@
-from pathlib import Path
-import polars as pl
-
 import shutil
-from zipfile import ZipFile
 from pathlib import Path
 from zipfile import ZipFile
 
 import httpx
+import polars as pl
 
 URL_BASE_ANP_AUTOMOTIVOS = (
     "https://www.gov.br/anp/pt-br/centrais-de-conteudo/"
@@ -101,15 +98,17 @@ def baixar_particao_anp(
             nome_csv = Path(nome_no_zip).name
             caminho_csv = pasta_particao / nome_csv
 
-            with arquivo_zip.open(nome_no_zip) as origem:
-                with caminho_csv.open("wb") as destino:
-                    shutil.copyfileobj(origem, destino)
+            with (
+                arquivo_zip.open(nome_no_zip) as origem,
+                caminho_csv.open("wb") as destino,
+            ):
+                shutil.copyfileobj(origem, destino)
 
         return caminho_csv
 
     finally:
-        caminho_zip.unlink(missing_ok=True)
-        
+        caminho_zip.unlink(missing_ok=True)    
+            
 def baixar_particoes_anp(
     pasta_bronze: Path,
     anos: range = range(2023, 2026),

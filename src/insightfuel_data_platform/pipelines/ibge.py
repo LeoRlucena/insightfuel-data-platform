@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from insightfuel_data_platform.ingestion.ibge import baixar_municipios_ibge
-
 from insightfuel_data_platform.storage.parquet import (
     construir_caminho_silver_municipios_ibge,
     salvar_parquet,
@@ -12,6 +11,7 @@ from insightfuel_data_platform.transformation.ibge import (
 from insightfuel_data_platform.validation.ibge import (
     validar_municipios_ibge,
 )
+
 
 def processar_municipios_ibge(pasta_silver: Path) -> Path:
     '''

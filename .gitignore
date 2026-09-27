@@ -21,3 +21,7 @@ logs/*
 !logs/.gitkeep
 config/*
 !config/.gitkeep
+
+# pytest & ruff
+.pytest_cache/
+.ruff_cache/

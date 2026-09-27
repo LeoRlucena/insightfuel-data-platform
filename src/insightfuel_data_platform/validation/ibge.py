@@ -1,6 +1,5 @@
 import polars as pl
 
-
 SCHEMA_MUNICIPIOS_IBGE = {
     "codigo_ibge": pl.String,
     "municipio": pl.String,

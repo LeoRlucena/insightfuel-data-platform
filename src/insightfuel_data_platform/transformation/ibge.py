@@ -2,6 +2,7 @@ import polars as pl
 
 from insightfuel_data_platform.utils.text import normalizar_texto
 
+
 def transformar_municipios_ibge(df: pl.DataFrame) -> pl.DataFrame:
     '''
     Transforma o DataFrame de municípios do IBGE, normalizando o nome dos municípios e selecionando colunas relevantes.

@@ -2,30 +2,25 @@ from pathlib import Path
 
 import polars as pl
 
+from insightfuel_data_platform.aggregation.anp import agregar_precos_mensais_municipio
 from insightfuel_data_platform.ingestion.anp import (
     carregar_particao,
     extrair_metadados_particao,
 )
-from insightfuel_data_platform.transformation.anp import (
-    transformar_anp_silver,
-    enriquecer_com_codigo_ibge,
-)
-
+from insightfuel_data_platform.storage.files import descobrir_csvs
 from insightfuel_data_platform.storage.parquet import (
     construir_caminho_gold_precos_mensais,
     construir_caminho_silver,
     construir_caminho_silver_municipios_ibge,
     salvar_parquet,
 )
-
+from insightfuel_data_platform.transformation.anp import (
+    enriquecer_com_codigo_ibge,
+    transformar_anp_silver,
+)
 from insightfuel_data_platform.validation.anp import validar_silver
-
 from insightfuel_data_platform.validation.gold import validar_gold_precos_mensais
 
-
-from insightfuel_data_platform.aggregation.anp import agregar_precos_mensais_municipio
-
-from insightfuel_data_platform.storage.files import descobrir_csvs
 
 def processar_particao_anp(arquivo_bronze: Path, pasta_silver: Path) -> Path:
     """

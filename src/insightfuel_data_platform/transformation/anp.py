@@ -1,11 +1,10 @@
 import polars as pl
 
-from insightfuel_data_platform.validation.anp import (
-    validar_colunas_desconhecidas,
-    validar_colunas_criticas,
-)
-
 from insightfuel_data_platform.utils.text import normalizar_texto
+from insightfuel_data_platform.validation.anp import (
+    validar_colunas_criticas,
+    validar_colunas_desconhecidas,
+)
 
 MAPEAMENTO_COLUNAS_ANP = {
     "Regiao - Sigla": "regiao",
