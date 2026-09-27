@@ -80,7 +80,7 @@ São calculados preço médio, mediano, mínimo, máximo, desvio padrão e quant
                                       do Airflow e instalação do pacote
                                       Python do projeto.
 
-  DuckDB                              Previsto para consultas analíticas
+  DuckDB                              Utilizado para consultas analíticas
                                       diretamente sobre os arquivos
                                       Parquet, sem necessidade de um
                                       servidor analítico dedicado nesta
@@ -350,6 +350,6 @@ A partir das demais fontes e transformações previstas, poderão ser construíd
 
 As principais evoluções identificadas são a persistência dos retornos brutos das APIs externas na Bronze, uso de checksums para detectar alterações retroativas, configuração de retries e alertas no Airflow e automatização da descoberta de novas partições da ANP.
 
-Também está prevista a integração das demais fontes mapeadas, como população e PIB municipal, dados geográficos, indicadores socioeconômicos e IPCA. O DuckDB poderá ser utilizado para consultas sobre os arquivos Parquet e os produtos Gold poderão posteriormente alimentar ferramentas de visualização, como Power BI.
+Também está prevista a integração das demais fontes mapeadas, como população e PIB municipal, dados geográficos, indicadores socioeconômicos e IPCA. O DuckDB é utilizado para consultas sobre os arquivos Parquet e os produtos Gold poderão posteriormente alimentar ferramentas de visualização, como Power BI.
 
 Essas evoluções complementam a implementação atual sem alterar a separação estabelecida entre as camadas da plataforma.

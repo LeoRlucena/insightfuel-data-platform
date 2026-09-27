@@ -6,7 +6,7 @@ O projeto InsightFuel Analytics busca construir uma plataforma de dados capaz de
 
 A base será composta pelos dados históricos de preços de combustíveis disponibilizados pela Agência Nacional do Petróleo, Gás Natural e Biocombustíveis (ANP). Esses dados serão enriquecidos por fontes externas, permitindo análises que se relacionam com fatores como renda, atividade econômica, distância das capitais e inflação.
 
-A seleção de fontes externas levou em consideração as perguntas e hipóteses norteadores com enunciado da atividade propostas para o projeto.
+A seleção de fontes externas levou em consideração as perguntas e hipóteses norteadoras propostas no enunciado da atividade.
 
 ---
 
@@ -138,7 +138,7 @@ Além disso, também poderá compor modelos utilizados para estimar o preço esp
 
 ### Limitação Temporal
 
-Existe uma diferença entre o perídio de preços da ANP e a disponibilidade do PIB Municipal.
+Existe uma diferença entre o período de preços da ANP e a disponibilidade do PIB Municipal.
 
 Os dados ANP utilizados no projeto abrangem 2023 - 2025, enquanto os dados municipais de PIB do IBGE atualmente disponíveis chegam até 2023.
 
@@ -224,7 +224,7 @@ Para análises diretamente relacionadas ao período estudado, indicadores econô
 
 **Granularidade**: Mês.
 
-**Peridiocidade**: Mensal.
+**Periodicidade**: Mensal.
 
 ### Dados de interesse
 
@@ -247,7 +247,7 @@ A série mensal do IPCA permitirá construir um índice acumulado e converter os
 
 | Pergunta/Hipótese | Principais variáveis | Fontes |
 | ----------- | ----------- | ----------- |
-| Q1 - Variação regional | preço. produto, região, população, indicadores econômicos | ANP + IBGE |
+| Q1 - Variação regional | preço, produto, região, população, indicadores econômicos | ANP + IBGE |
 | Q2 / H1 - Distância de capital | preço municipal e distância geográfica | ANP + IBGE + Localidades + Malhas |
 | Q3 / H2 - Renda e preços | preço, PIB per capita e IDHM/IDHM Renda | ANP + IBGE PIB + Atlas/BD |
 | Q4 / H3 - Volatilidade e porte | série temporal, produto, região e população | ANP + IBGE População |
@@ -283,11 +283,11 @@ Com essa estratégia, reduzimos a dependência de relacionamentos baseados em no
 
 ## 11. Considerações sobre temporalidade
 
-As fontes aqui selecionados apresentam diferentes frequências e períodos de atualização.
+As fontes aqui selecionadas apresentam diferentes frequências e períodos de atualização.
 
 Os preços da ANP, por exemplo, possuem alta granularidade temporal e vão ser agregados para análises mensais. Já população possui referência anual, enquanto PIB municipal tem maior defasagem de divulgação. O IDHM possui caráter estrutural e histórico. Já o IPCA é de periodicidade mensal.
 
-Por conta disso, não pode-se considerar que todas as variáveis sejam observadas simultaneamente em enriquecimentos. Dessa forma, o pipeline deverá preservar o ano ou período de referência de cada indicador, permitindo também identificar a temporalidade de cada informação utilizada nas análises.
+Por conta disso, não se pode considerar que todas as variáveis sejam observadas simultaneamente em enriquecimentos. Dessa forma, o pipeline deverá preservar o ano ou período de referência de cada indicador, permitindo também identificar a temporalidade de cada informação utilizada nas análises.
 
 ---
 
@@ -295,7 +295,7 @@ Por conta disso, não pode-se considerar que todas as variáveis sejam observada
 
 As fontes selecionadas nos permitem cobrir os principais eixos analíticos propostos para o InsightFuel, sem introduzir fontes externas desnecessárias.
 
-O núcleo transacional e temporal relacionado à preços gira em torno da ANP. O IBGE fornece a estrutura territorial, demográfica e econômica para caracterizar os municípios. O Atlas do Desenvolvimento Humano acrescenta características socioeconômicas estruturais, enquanto o IPCA permitirá comparar preços em termos reais.
+O núcleo transacional e temporal relacionado a preços gira em torno da ANP. O IBGE fornece a estrutura territorial, demográfica e econômica para caracterizar os municípios. O Atlas do Desenvolvimento Humano acrescenta características socioeconômicas estruturais, enquanto o IPCA permitirá comparar preços em termos reais.
 
 Integrar todas essas fontes possibilitará construir uma camada analítica mensal enriquecida.
 
