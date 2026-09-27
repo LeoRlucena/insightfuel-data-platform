@@ -47,45 +47,16 @@ São calculados preço médio, mediano, mínimo, máximo, desvio padrão e quant
 
 ## 3. Tecnologias e Justificativas
 
-  -----------------------------------------------------------------------
-  Tecnologia                          Utilização no projeto
-  ----------------------------------- -----------------------------------
-  Python                              Linguagem principal para ingestão,
-                                      transformação, validação e
-                                      agregação.
-
-  Polars                              Processamento dos DataFrames. Foi
-                                      escolhido pelo suporte a
-                                      processamento colunar, tipos de
-                                      dados e Parquet, além de
-                                      experiência prévia do autor com a
-                                      biblioteca.
-
-  Parquet                             Armazenamento das camadas Silver e
-                                      Gold em formato colunar, tipado e
-                                      comprimido.
-
-  Apache Airflow                      Orquestração das tarefas e controle
-                                      das dependências do pipeline.
-
-  HTTPX                               Comunicação HTTP com as fontes
-                                      externas e download em streaming
-                                      dos arquivos da ANP.
-
-  uv                                  Gerenciamento do ambiente Python e
-                                      das dependências por meio de
-                                      `pyproject.toml` e `uv.lock`.
-
-  Docker                              Ambiente reproduzível para execução
-                                      do Airflow e instalação do pacote
-                                      Python do projeto.
-
-  DuckDB                              Utilizado para consultas analíticas
-                                      diretamente sobre os arquivos
-                                      Parquet, sem necessidade de um
-                                      servidor analítico dedicado nesta
-                                      etapa.
-  -----------------------------------------------------------------------
+| Tecnologia | Utilização no projeto |
+| --- | --- |
+| Python | Linguagem principal para ingestão, transformação, validação e agregação. |
+| Polars | Processamento dos DataFrames. Foi escolhido pelo suporte a processamento colunar, tipos de dados e Parquet, além de experiência prévia do autor com a biblioteca. |
+| Parquet | Armazenamento das camadas Silver e Gold em formato colunar, tipado e comprimido. |
+| Apache Airflow | Orquestração das tarefas e controle das dependências do pipeline. |
+| HTTPX | Comunicação HTTP com as fontes externas e download em streaming dos arquivos da ANP. |
+| uv | Gerenciamento do ambiente Python e das dependências por meio de `pyproject.toml` e `uv.lock`. |
+| Docker | Ambiente reproduzível para execução do Airflow e instalação do pacote Python do projeto. |
+| DuckDB | Utilizado para consultas analíticas diretamente sobre os arquivos Parquet, sem necessidade de um servidor analítico dedicado nesta etapa. |
 
 A Bronze permanece em CSV no caso da ANP para preservar o formato recebido da fonte.
 
@@ -121,34 +92,12 @@ Na ANP, o ZIP é baixado em streaming e o CSV é armazenado na partição corres
 
 O pipeline foi dividido em tarefas com entradas, saídas e validações definidas. Os SLAs abaixo representam objetivos de disponibilidade dos dados, e não limites rígidos de duração das tarefas.
 
-  ---------------------------------------------------------------------------------------
-  Ordem       Task               Entrada       Saída       Principais      SLA /
-                                                           validações      observação
-  ----------- ------------------ ------------- ----------- --------------- --------------
-  1           `baixar_anp`       ZIP oficial   CSV Bronze  HTTP, ZIP e CSV Até 24h após
-                                 ANP                       esperado        nova partição;
-                                                                           arquivos
-                                                                           existentes são
-                                                                           reutilizados
-
-  2           `processar_anp`    CSV Bronze    Parquet     Schema, campos  Até 24h após
-                                               Silver      obrigatórios,   Bronze
-                                                           tipos, valores, 
-                                                           CNPJ, UF,       
-                                                           produtos e      
-                                                           unidades        
-
-  3           `processar_ibge`   API           Dimensão    Schema, nulos   Deve estar
-                                 Localidades   Silver      obrigatórios e  disponível
-                                 IBGE                      unicidade do    antes da Gold
-                                                           código IBGE     dependente
-
-  4           `construir_gold`   Silver ANP +  Gold mensal Schema,         Até 24h após
-                                 IBGE                      granularidade   atualização
-                                                           única e         das entradas
-                                                           consistência    
-                                                           das métricas    
-  ---------------------------------------------------------------------------------------
+| Ordem | Task | Entrada | Saída | Principais validações | SLA / observação |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `baixar_anp` | ZIP oficial ANP | CSV Bronze | HTTP, ZIP e CSV esperado | Até 24h após nova partição; arquivos existentes são reutilizados |
+| 2 | `processar_anp` | CSV Bronze | Parquet Silver | Schema, campos obrigatórios, tipos, valores, CNPJ, UF, produtos e unidades | Até 24h após Bronze |
+| 3 | `processar_ibge` | API Localidades IBGE | Dimensão Silver | Schema, nulos obrigatórios e unicidade do código IBGE | Deve estar disponível antes da Gold dependente |
+| 4 | `construir_gold` | Silver ANP + IBGE | Gold mensal | Schema, granularidade única e consistência das métricas | Até 24h após atualização das entradas |
 
 O fluxo implementado é:
 
@@ -173,24 +122,11 @@ A interface do Airflow permite acompanhar o estado de cada etapa e impede que ta
 
 As validações funcionam como contratos entre as etapas do pipeline. Para a ANP, os atributos são separados de acordo com sua importância:
 
-  -----------------------------------------------------------------------
-  Categoria               Exemplos                Tratamento
-  ----------------------- ----------------------- -----------------------
-  Críticos                Estado, Município,      Ausência bloqueia a
-                          CNPJ, Produto, Data da  promoção para Silver
-                          Coleta, Valor de Venda  
-                          e Unidade de Medida     
-
-  Analíticos              Região, Revenda e       Ausência pode limitar
-                          Bandeira                análises, mas não
-                                                  inviabiliza o núcleo do
-                                                  processamento
-
-  Complementares          Endereço, número,       Utilizados para
-                          complemento, bairro,    profiling,
-                          CEP e Valor de Compra   rastreabilidade ou
-                                                  verificações auxiliares
-  -----------------------------------------------------------------------
+| Categoria | Exemplos | Tratamento |
+| --- | --- | --- |
+| Críticos | Estado, Município, CNPJ, Produto, Data da Coleta, Valor de Venda e Unidade de Medida | Ausência bloqueia a promoção para Silver |
+| Analíticos | Região, Revenda e Bandeira | Ausência pode limitar análises, mas não inviabiliza o núcleo do processamento |
+| Complementares | Endereço, número, complemento, bairro, CEP e Valor de Compra | Utilizados para profiling, rastreabilidade ou verificações auxiliares |
 
 O contrato atual da Silver ANP contém `regiao`, `uf`, `municipio`, `revenda`, `cnpj_revenda`, `cep`, `produto`, `data_coleta`, `valor_venda`, `unidade_medida` e `bandeira`.
 
@@ -210,22 +146,14 @@ Entretanto, no primeiro semestre de 2024 foram encontrados 14 grupos com a mesma
 
 A estratégia adotada é remover **somente duplicatas exatas**, considerando a linha completa da fonte antes da seleção das colunas da Silver.
 
-  -----------------------------------------------------------------------
-  Partição        Colisões na chave  Duplicatas exatas      Linhas vazias
-                          candidata        redundantes 
-  -------------- ------------------ ------------------ ------------------
-  2023/1                          0                  0                  0
-
-  2023/2                          0                  0                  0
-
-  2024/1                  14 grupos                 10                  0
-
-  2024/2                          0                  0                  0
-
-  2025/1                        0\*              9.113              9.114
-
-  2025/2                          0                  0                  0
-  -----------------------------------------------------------------------
+| Partição | Colisões na chave candidata | Duplicatas exatas redundantes | Linhas vazias |
+| --- | --- | --- | --- |
+| 2023/1 | 0 | 0 | 0 |
+| 2023/2 | 0 | 0 | 0 |
+| 2024/1 | 14 grupos | 10 | 0 |
+| 2024/2 | 0 | 0 | 0 |
+| 2025/1 | 0\* | 9.113 | 9.114 |
+| 2025/2 | 0 | 0 | 0 |
 
 \* A análise da chave candidata desconsidera registros cujos componentes da chave são nulos.
 
@@ -241,21 +169,11 @@ Na ANP, cada semestre é tratado como uma partição independente. O downloader 
 
 A Gold possui comportamento diferente: por ser derivada das camadas Silver, suas partições anuais podem ser reconstruídas de forma determinística. Assim, uma nova execução não realiza append dos mesmos indicadores ao resultado anterior.
 
-  -----------------------------------------------------------------------
-  Conceito                Problema tratado        Estratégia
-  ----------------------- ----------------------- -----------------------
-  Incrementalidade        Evitar reprocessar todo Partições por ano e
-                          o histórico             semestre
-
-  Idempotência            Evitar duplicação por   Reutilização de
-                          reexecução              partições e
-                                                  reconstrução
-                                                  determinística
-
-  Deduplicação            Remover repetições      Somente linhas
-                          existentes na própria   integralmente idênticas
-                          fonte                   
-  -----------------------------------------------------------------------
+| Conceito | Problema tratado | Estratégia |
+| --- | --- | --- |
+| Incrementalidade | Evitar reprocessar todo o histórico | Partições por ano e semestre |
+| Idempotência | Evitar duplicação por reexecução | Reutilização de partições e reconstrução determinística |
+| Deduplicação | Remover repetições existentes na própria fonte | Somente linhas integralmente idênticas |
 
 Uma limitação atual é que a existência do arquivo não detecta uma eventual correção retroativa publicada pela fonte. Como evolução, podem ser registrados metadados e checksums por partição para identificar alterações de conteúdo e disparar o reprocessamento necessário.
 
@@ -265,22 +183,13 @@ Como as fontes externas podem adicionar, remover ou renomear colunas, a platafor
 
 A Bronze preserva a estrutura recebida da fonte, enquanto a Silver representa o contrato interno da plataforma. Assim, uma mudança externa não precisa ser propagada automaticamente para os consumidores.
 
-  -----------------------------------------------------------------------
-  Alteração                           Tratamento
-  ----------------------------------- -----------------------------------
-  Coluna crítica removida             Bloqueia a promoção para Silver
-
-  Coluna opcional removida            Mantém a coluna Silver com valores
-                                      nulos
-
-  Nova coluna adicionada              Permanece na Bronze e não entra
-                                      automaticamente no contrato Silver
-
-  Coluna crítica renomeada            É inicialmente tratada como ausente
-                                      até que a mudança seja analisada
-
-  Tipo ou formato incompatível        Falha na transformação ou validação
-  -----------------------------------------------------------------------
+| Alteração | Tratamento |
+| --- | --- |
+| Coluna crítica removida | Bloqueia a promoção para Silver |
+| Coluna opcional removida | Mantém a coluna Silver com valores nulos |
+| Nova coluna adicionada | Permanece na Bronze e não entra automaticamente no contrato Silver |
+| Coluna crítica renomeada | É inicialmente tratada como ausente até que a mudança seja analisada |
+| Tipo ou formato incompatível | Falha na transformação ou validação |
 
 Esse comportamento foi validado com dois testes: a ausência de `Bandeira` foi absorvida com valores nulos, enquanto a ausência de `Valor de Venda` bloqueou a transformação.
 
@@ -290,25 +199,13 @@ Essa política permite que mudanças da fonte sejam avaliadas antes de alterar o
 
 As camadas são persistidas separadamente, de forma que uma falha em uma etapa não invalide os dados já publicados nas anteriores.
 
-  -----------------------------------------------------------------------
-  Falha                               Comportamento esperado
-  ----------------------------------- -----------------------------------
-  Download da ANP                     A partição não é disponibilizada na
-                                      Bronze e as etapas dependentes não
-                                      prosseguem
-
-  Schema crítico inválido             A partição não é promovida para
-                                      Silver
-
-  Falha na validação Silver           Os dados inválidos não são
-                                      utilizados na Gold
-
-  Falha no IBGE                       Produtos dependentes da dimensão
-                                      geográfica não são construídos
-
-  Falha na Gold                       Bronze e Silver já publicadas
-                                      permanecem disponíveis
-  -----------------------------------------------------------------------
+| Falha | Comportamento esperado |
+| --- | --- |
+| Download da ANP | A partição não é disponibilizada na Bronze e as etapas dependentes não prosseguem |
+| Schema crítico inválido | A partição não é promovida para Silver |
+| Falha na validação Silver | Os dados inválidos não são utilizados na Gold |
+| Falha no IBGE | Produtos dependentes da dimensão geográfica não são construídos |
+| Falha na Gold | Bronze e Silver já publicadas permanecem disponíveis |
 
 Uma Gold com falha pode, por exemplo, ser reconstruída utilizando as Silver já materializadas, sem repetir necessariamente o download das fontes.
 
