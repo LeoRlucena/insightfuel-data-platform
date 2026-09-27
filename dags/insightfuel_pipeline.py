@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from pathlib import Path
 
-from airflow.sdk import dag, task # type: ignore
+from airflow.sdk import dag, task  # type: ignore
 
 from insightfuel_data_platform.ingestion.anp import (
     baixar_particoes_anp,
